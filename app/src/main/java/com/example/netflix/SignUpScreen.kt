@@ -1,11 +1,18 @@
 package com.example.netflix
 
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.ComponentActivity
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
@@ -20,6 +27,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
@@ -33,21 +42,31 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 
 @Composable
-fun SignUpScreen(onClick: ()->Unit) {
+fun SignUpScreen(onNavigateToLogin: ()->Unit, loginManager: LogInManager) {
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
 
+    var imageUri by remember { mutableStateOf<Uri?>(null) }
+    val context = LocalContext.current
+
     val auth: FirebaseAuth = Firebase.auth
+
+    val activity = context as ComponentActivity
+    val pickImageLauncher = activity.registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            imageUri = it
+        }
+    }
 
     fun SignUp(email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     message = "Sign-Up Successful"
-                    onClick()
+                    onNavigateToLogin()
                 } else {
                     message = task.exception?.message ?:"Sign-Up Failed"
                 }
@@ -67,6 +86,47 @@ fun SignUpScreen(onClick: ()->Unit) {
                 Text(text = "Sign Up", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 24.sp)
 
                 Spacer(modifier = Modifier.height(16.dp))
+
+                imageUri?.let {
+                    Image(
+                        painter = painterResource(id = R.drawable.group_10),
+                        contentDescription = "Selected Image",
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clickable {
+                                pickImageLauncher.launch("image/*")
+                            }
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = {
+                            loginManager.uploadProfilePicture(imageUri!!) { downloadUrl ->
+                                Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(text = "Upload Profile Picture")
+                    }
+                } ?: run {
+                    Image(
+                        painter = painterResource(id = R.drawable.group_10),
+                        contentDescription = "Placeholder Image",
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clickable {
+                                pickImageLauncher.launch("image/*")
+                            }
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(text = "Upload Profile Picture", color = Color.White, fontSize = 18.sp)
+
+                Spacer(modifier = Modifier.height(8.dp))
                 
                 OutlinedTextField(
                     value = email,
@@ -117,8 +177,8 @@ fun SignUpScreen(onClick: ()->Unit) {
     }
 }
 
-@Preview
-@Composable
-fun PreviewSignUpScreen() {
-    SignUpScreen({  })
-}
+//@Preview
+//@Composable
+//fun PreviewSignUpScreen() {
+//    SignUpScreen({  })
+//}

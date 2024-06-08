@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Netflix</string>
+    <string name="default_web_client_id">868979049574-o3ct74r72kdabpo8idkjendcjq2efs25.apps.googleusercontent.com</string>
 </resources>

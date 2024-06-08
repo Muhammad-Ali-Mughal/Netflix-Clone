@@ -63,6 +63,11 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.auth)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.material)
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.constraintlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -77,6 +82,16 @@ dependencies {
     //Navigation
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
+    implementation("androidx.compose.material3:material3-adaptive-android:1.0.0-alpha06")
+    implementation("androidx.activity:activity-compose:1.9.0")
+
+
     //Firebase Config
     implementation(platform("com.google.firebase:firebase-bom:33.0.0"))
+
+    // Google Play Services
+    implementation("com.google.android.gms:play-services-auth:20.5.0")
+
+    // Firestore Storage
+    implementation("com.google.firebase:firebase-storage")
 }

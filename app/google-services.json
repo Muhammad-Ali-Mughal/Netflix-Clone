@@ -12,7 +12,20 @@
           "package_name": "com.example.netflix"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "868979049574-o3ct74r72kdabpo8idkjendcjq2efs25.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.netflix",
+            "certificate_hash": "d02cc4308a2370034da725e2e22399cd529f8379"
+          }
+        },
+        {
+          "client_id": "868979049574-0n76de7b1b38mj2itb8qqa6mgpa6af7d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyDNBGgCaWVGN3q8h2TYTW9k0slR9PBdZlE"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "868979049574-0n76de7b1b38mj2itb8qqa6mgpa6af7d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
