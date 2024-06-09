@@ -9,30 +9,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.netflix.ui.theme.NetflixTheme
-import com.google.firebase.annotations.concurrent.Background
 
 data class BottomNavigationItem(
     val title: String,
@@ -41,67 +34,76 @@ data class BottomNavigationItem(
     val unselectedIcon: ImageVector,
 )
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             NetflixTheme {
-                val items = listOf(
-                    BottomNavigationItem(
-                        title = "Home",
-                        selectedIcon = Icons.Filled.Home,
-                        unselectedIcon = Icons.Outlined.Home,
-                        route = "home"
-                    ),
-                    BottomNavigationItem(
-                        title = "Search",
-                        selectedIcon = ImageVector.vectorResource(id = R.drawable.icons8_search_25),
-                        unselectedIcon = ImageVector.vectorResource(id = R.drawable.icons8_search_25),
-                        route = "search"
-                    ),
-                    BottomNavigationItem(
-                        title = "Chat",
-                        selectedIcon = Icons.Filled.Email,
-                        unselectedIcon = Icons.Outlined.Email,
-                        route = "chat"
-                    ),
-                    BottomNavigationItem(
-                        title = "Profile",
-                        selectedIcon = ImageVector.vectorResource(id = R.drawable.user__1__1),
-                        unselectedIcon = ImageVector.vectorResource(id = R.drawable.user__1__1),
-                        route = "profile"
-                    ),
+                MainScreen()
+            }
+        }
+    }
+}
+
+@Composable
+fun MainScreen() {
+    val items = listOf(
+        BottomNavigationItem(
+            title = "Home",
+            selectedIcon = Icons.Filled.Home,
+            unselectedIcon = Icons.Outlined.Home,
+            route = "home"
+        ),
+        BottomNavigationItem(
+            title = "Search",
+            selectedIcon = ImageVector.vectorResource(id = R.drawable.icons8_search_25),
+            unselectedIcon = ImageVector.vectorResource(id = R.drawable.icons8_search_25),
+            route = "search"
+        ),
+        BottomNavigationItem(
+            title = "Chat",
+            selectedIcon = Icons.Filled.Email,
+            unselectedIcon = Icons.Outlined.Email,
+            route = "chat"
+        ),
+        BottomNavigationItem(
+            title = "Profile",
+            selectedIcon = ImageVector.vectorResource(id = R.drawable.user__1__1),
+            unselectedIcon = ImageVector.vectorResource(id = R.drawable.user__1__1),
+            route = "profile"
+        ),
+    )
+
+    val selectedItemIndex = rememberSaveable { mutableStateOf(0) }
+    val navController = rememberNavController()
+    val context = LocalContext.current
+    val loginManager = remember { LogInManager(context) }
+
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Scaffold(
+            bottomBar = {
+                BottomNavigationBar(
+                    items = items,
+                    selectedItemIndex = selectedItemIndex.value,
+                    onItemSelected = { index, route ->
+                        selectedItemIndex.value = index
+                        navController.navigate(route) {
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                    backgroundColor = Color.Black
                 )
-
-                var selectedItemIndex = rememberSaveable { mutableStateOf(0) }
-                val navController = rememberNavController()
-
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    Scaffold(
-                        bottomBar = {
-                            BottomNavigationBar(
-                                items = items,
-                                selectedItemIndex = selectedItemIndex.value,
-                                onItemSelected = { index, route ->
-                                    selectedItemIndex.value = index
-                                    navController.navigate(route) {
-                                        popUpTo(navController.graph.startDestinationId)
-                                        launchSingleTop = true
-                                    }
-                                },
-                                backgroundColor = Color.Black
-                            )
-                        }
-                    ) { innerPadding ->
-                        Box(modifier = Modifier.padding(innerPadding)) {
-                            NavHostScreen()
-                        }
-                    }
-                }
+            }
+        ) { innerPadding ->
+            Box(modifier = Modifier.padding(innerPadding)) {
+                NavigationHost(navController, loginManager)
             }
         }
     }
@@ -130,6 +132,46 @@ fun BottomNavigationBar(
                     )
                 }
             )
+        }
+    }
+}
+
+@Composable
+fun NavigationHost(navController: NavHostController, loginManager: LogInManager) {
+    NavHost(navController = navController, startDestination = "login") {
+        composable("home") {
+            HomeScreen(
+                onNavigateToHome = { navController.navigate("home") },
+                onNavigateToMovieDetails = { navController.navigate("moviedetails") }
+            )
+        }
+        composable(route = "login") {
+            LogInScreen(
+                onNavigateToSignUp = {
+                    navController.navigate("signup")
+                },
+                onNavigateToHome = {
+                    navController.navigate("home")
+                },
+                message = null, // Pass the error message here
+                loginManager = loginManager
+            )
+        }
+        composable("signup") {
+            SignUpScreen(
+                onNavigateToLogin = {
+                    navController.navigate("login") {
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    }
+                },
+                loginManager = loginManager
+            )
+        }
+        composable("profile") {
+            Profile()
+        }
+        composable("moviedetails") {
+            MovieDetailScreen()
         }
     }
 }

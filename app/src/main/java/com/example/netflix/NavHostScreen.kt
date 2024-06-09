@@ -18,32 +18,30 @@ fun NavHostScreen() {
 
     NavHost(navController = navController, startDestination = "login") {
         composable(route = "login") {
-            LogInScreen (
-                onNavigateToSignUp = {
-                    navController.navigate("signup")
-                },
-                onNavigateToHome = {
-                    navController.navigate("home")
-                },
-                message = null, // Pass the error message here
+            LogInScreen(
+                onNavigateToSignUp = { navController.navigate("signup") },
+                onNavigateToHome = { navController.navigate("home") },
+                message = null,
+                loginManager = loginManager
+            )
+        }
+        composable(route = "signup") {
+            SignUpScreen(
+                onNavigateToLogin = { navController.navigate("login") },
                 loginManager = loginManager
             )
         }
         composable(route = "home") {
-            HomeScreen {
-                navController.navigate("home")
-            } // No need to navigate to "home" when already on "home"
-        }
-        composable(route = "signup") {
-            SignUpScreen (
-                onNavigateToLogin = {
-                    navController.navigate("login")
-                },
-                loginManager = loginManager,
+            HomeScreen(
+                onNavigateToHome = { navController.navigate("home") },
+                onNavigateToMovieDetails = { navController.navigate("moviedetails") }
             )
         }
         composable(route = "profile") {
-
+            Profile ()
+        }
+        composable(route = "moviedetails") {
+            MovieDetailScreen()
         }
     }
 }

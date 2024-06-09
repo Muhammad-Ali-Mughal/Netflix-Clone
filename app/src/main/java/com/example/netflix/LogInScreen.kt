@@ -6,7 +6,6 @@ import android.content.Intent
 import android.content.IntentSender
 import android.net.Uri
 import android.os.Bundle
-import android.os.PersistableBundle
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -40,7 +39,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -49,11 +47,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.firebase.Firebase
+import com.google.firebase.FirebaseApp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.auth
-import com.google.firebase.storage.storage
+import com.google.firebase.storage.FirebaseStorage
 import java.util.UUID
 
 class LogInManager(private val context: Context) {
@@ -62,9 +59,10 @@ class LogInManager(private val context: Context) {
     private lateinit var googleSignInClient: GoogleSignInClient
     private val RC_SIGN_IN: Int = 1
 
-    private val storageRef = Firebase.storage.reference
+    private val storageRef = FirebaseStorage.getInstance().reference
 
     init {
+        FirebaseApp.initializeApp(context)
         val defaultWebClientId = context.getString(R.string.default_web_client_id)
         val gso = GoogleSignInOptions
             .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -83,7 +81,7 @@ class LogInManager(private val context: Context) {
     fun performGoogleSignIn(activity: Activity, onSuccess: () -> Unit) {
         val signInIntent = googleSignInClient.signInIntent
         activity.startActivityForResult(signInIntent, RC_SIGN_IN)
-        //onSuccess()
+        // onSuccess() - This will be triggered in onActivityResult
     }
 
     fun firebaseAuthWithGoogle(
@@ -91,14 +89,14 @@ class LogInManager(private val context: Context) {
         onSuccess: () -> Unit,
         onFailure: (String) -> Unit,
         onNavigateToSignUp: () -> Unit,
-        onNavigateToHome: () -> Unit // Add callback for navigating to home screen
+        onNavigateToHome: () -> Unit
     ) {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         auth.signInWithCredential(credential)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     onSuccess()
-                    onNavigateToHome() // Navigate to home screen on success
+                    onNavigateToHome()
                 } else {
                     onFailure(task.exception?.message ?: "Login Failed")
                     onNavigateToSignUp()
@@ -106,24 +104,18 @@ class LogInManager(private val context: Context) {
             }
     }
 
-
-    fun login(
-        email: String,
-        password: String,
-        onSuccess: () -> Unit, // Callback for successful login
-        onFailure: (String) -> Unit // Callback for login failure
-    ) {
+    fun login(email: String, password: String, onNavigateToHome: () -> Unit, callback: (String) -> Unit) {
         if (email.isNotEmpty() && password.isNotEmpty()) {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        onSuccess()
+                        onNavigateToHome()
                     } else {
-                        onFailure(task.exception?.message ?: "Log-In Failed")
+                        callback.invoke(task.exception?.message ?: "Log-In Failed")
                     }
                 }
         } else {
-            onFailure("Email or password is empty")
+            callback.invoke("Email or password is empty")
         }
     }
 
@@ -149,10 +141,11 @@ class LogInManager(private val context: Context) {
             }
     }
 }
+
 @Composable
 fun LogInScreen(
     onNavigateToSignUp: () -> Unit,
-    onNavigateToHome: ()-> Unit,
+    onNavigateToHome: () -> Unit,
     message: String?,
     loginManager: LogInManager
 ) {
@@ -200,10 +193,7 @@ fun LogInScreen(
 
                 Button(
                     onClick = {
-                        loginManager.login(email, password,
-                            onSuccess = {
-                                onNavigateToHome()
-                            },) { message ->
+                        loginManager.login(email, password, onNavigateToHome) { message ->
                             "Logging In..."
                         }
                     },
@@ -216,7 +206,9 @@ fun LogInScreen(
 
                 Text(
                     text = "Create new account",
-                    modifier = Modifier.clickable { onNavigateToSignUp() },
+                    modifier = Modifier
+                        .clickable { onNavigateToSignUp() }
+                        .padding(16.dp),
                     fontSize = 16.sp,
                     color = Color.Red
                 )
