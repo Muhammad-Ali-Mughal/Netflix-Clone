@@ -61,10 +61,10 @@ fun MainScreen() {
             route = "search"
         ),
         BottomNavigationItem(
-            title = "Chat",
-            selectedIcon = Icons.Filled.Email,
-            unselectedIcon = Icons.Outlined.Email,
-            route = "chat"
+            title = "Downloads",
+            selectedIcon = ImageVector.vectorResource(id = R.drawable.frame_5),
+            unselectedIcon = ImageVector.vectorResource(id = R.drawable.frame_5),
+            route = "downloads"
         ),
         BottomNavigationItem(
             title = "Profile",
@@ -142,7 +142,7 @@ fun NavigationHost(navController: NavHostController, loginManager: LogInManager)
         composable("home") {
             HomeScreen(
                 onNavigateToHome = { navController.navigate("home") },
-                onNavigateToMovieDetails = { navController.navigate("moviedetails") }
+                onNavigateToMovieDetails = { navController.navigate("movie-details") }
             )
         }
         composable(route = "login") {
@@ -168,10 +168,25 @@ fun NavigationHost(navController: NavHostController, loginManager: LogInManager)
             )
         }
         composable("profile") {
-            Profile()
+            Profile(
+                onNavigateToHome = {
+                    navController.navigate("home")
+                },
+            )
         }
-        composable("moviedetails") {
-            MovieDetailScreen()
+        composable("downloads") {
+            DownloadsScreen()
+        }
+        composable(route = "search") {
+            SearchScreen (
+                onNavigateToMovieDetails = { navController.navigate("movie-details") }
+            )
+        }
+        composable("movie-details") {
+            MovieDetailScreen(
+                onNavigateToHome = { navController.navigate("home") },
+                onNavigateToMovieDetails = { navController.navigate("movie-details") }
+            )
         }
     }
 }

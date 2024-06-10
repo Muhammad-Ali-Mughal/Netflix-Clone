@@ -81,7 +81,7 @@ class LogInManager(private val context: Context) {
     fun performGoogleSignIn(activity: Activity, onSuccess: () -> Unit) {
         val signInIntent = googleSignInClient.signInIntent
         activity.startActivityForResult(signInIntent, RC_SIGN_IN)
-        // onSuccess() - This will be triggered in onActivityResult
+         onSuccess()
     }
 
     fun firebaseAuthWithGoogle(

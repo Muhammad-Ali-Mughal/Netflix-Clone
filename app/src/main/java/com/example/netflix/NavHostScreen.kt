@@ -34,14 +34,27 @@ fun NavHostScreen() {
         composable(route = "home") {
             HomeScreen(
                 onNavigateToHome = { navController.navigate("home") },
-                onNavigateToMovieDetails = { navController.navigate("moviedetails") }
+                onNavigateToMovieDetails = { navController.navigate("movie-details") }
             )
         }
         composable(route = "profile") {
-            Profile ()
+            Profile (
+                onNavigateToHome = { navController.navigate("home") },
+            )
         }
-        composable(route = "moviedetails") {
-            MovieDetailScreen()
+        composable(route = "downloads") {
+            DownloadsScreen ()
+        }
+        composable(route = "search") {
+            SearchScreen (
+                onNavigateToMovieDetails = { navController.navigate("movie-details") }
+            )
+        }
+        composable(route = "movie-details") {
+            MovieDetailScreen(
+                onNavigateToHome = { navController.navigate("home") },
+                onNavigateToMovieDetails = { navController.navigate("movie-details") }
+            )
         }
     }
 }

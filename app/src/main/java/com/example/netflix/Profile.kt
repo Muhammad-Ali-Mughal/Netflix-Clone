@@ -22,7 +22,7 @@ import androidx.constraintlayout.compose.Dimension
 data class ListItem(val title: String, val icon: Int)
 
 @Composable
-fun Profile() {
+fun Profile(onNavigateToHome: () -> Unit) {
 
     val listItems = listOf(
         ListItem("Edit Profile", R.drawable.user__1__1),
@@ -63,7 +63,7 @@ fun Profile() {
                     contentDescription = null,
                     modifier = Modifier
                         .align(Alignment.CenterStart)
-                        .clickable { }
+                        .clickable { onNavigateToHome }
                 )
             }
             Box(
@@ -112,6 +112,7 @@ fun Profile() {
 fun ProfileListItem(title: String, icon: Int) {
     Row(
         modifier = Modifier
+            .clickable { }
             .padding(8.dp)
             .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -132,8 +133,8 @@ fun ProfileListItem(title: String, icon: Int) {
     }
 }
 
-@Preview
-@Composable
-fun PreviewProfile() {
-    Profile()
-}
+//@Preview
+//@Composable
+//fun PreviewProfile() {
+//    Profile()
+//}

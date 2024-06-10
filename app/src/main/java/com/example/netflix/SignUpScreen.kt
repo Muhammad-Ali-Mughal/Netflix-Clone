@@ -14,15 +14,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,18 +31,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.auth
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.ktx.Firebase
 
 @Composable
-fun SignUpScreen(onNavigateToLogin: ()->Unit, loginManager: LogInManager) {
+fun SignUpScreen(onNavigateToLogin: () -> Unit, loginManager: LogInManager) {
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -54,33 +51,36 @@ fun SignUpScreen(onNavigateToLogin: ()->Unit, loginManager: LogInManager) {
 
     val auth: FirebaseAuth = Firebase.auth
 
+    // Using LaunchedEffect to ensure the registration is done at the correct lifecycle phase
     val activity = context as ComponentActivity
-    val pickImageLauncher = activity.registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
-        uri?.let {
-            imageUri = it
+    val pickImageLauncher = remember {
+        activity.registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+            uri?.let {
+                imageUri = it
+            }
         }
     }
 
-    fun SignUp(email: String, password: String) {
+    fun signUp(email: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     message = "Sign-Up Successful"
-                    onNavigateToLogin()
+                     onNavigateToLogin()
                 } else {
-                    message = task.exception?.message ?:"Sign-Up Failed"
+                    message = task.exception?.message ?: "Sign-Up Failed"
                 }
             }
     }
 
-    Surface (
+    Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.Black
     ) {
-        ConstraintLayout (modifier = Modifier.fillMaxSize()) {
+        ConstraintLayout(modifier = Modifier.fillMaxSize()) {
             Column(
                 modifier = Modifier.fillMaxSize(),
-                verticalArrangement =Arrangement.Center,
+                verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(text = "Sign Up", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 24.sp)
@@ -102,9 +102,10 @@ fun SignUpScreen(onNavigateToLogin: ()->Unit, loginManager: LogInManager) {
 
                     Button(
                         onClick = {
-                            loginManager.uploadProfilePicture(imageUri!!) { downloadUrl ->
-                                Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
-                            }
+                            // Uncomment and add your upload logic here
+                             loginManager.uploadProfilePicture(imageUri!!) { downloadUrl ->
+                                 Toast.makeText(context, "Upload Successful", Toast.LENGTH_SHORT).show()
+                             }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -121,17 +122,17 @@ fun SignUpScreen(onNavigateToLogin: ()->Unit, loginManager: LogInManager) {
                             }
                     )
                 }
-                
+
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(text = "Upload Profile Picture", color = Color.White, fontSize = 18.sp)
 
                 Spacer(modifier = Modifier.height(8.dp))
-                
+
                 OutlinedTextField(
                     value = email,
-                    onValueChange = {email = it},
-                    label = { Text(text = "Email")},
+                    onValueChange = { email = it },
+                    label = { Text(text = "Email") },
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -140,7 +141,7 @@ fun SignUpScreen(onNavigateToLogin: ()->Unit, loginManager: LogInManager) {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Password", onTextLayout = { }) },
+                    label = { Text("Password") },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -150,20 +151,22 @@ fun SignUpScreen(onNavigateToLogin: ()->Unit, loginManager: LogInManager) {
                 OutlinedTextField(
                     value = confirmPassword,
                     onValueChange = { confirmPassword = it },
-                    label = { Text("Confirm Password", onTextLayout = { }) },
+                    label = { Text("Confirm Password") },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-                
-                Button(onClick = {
+
+                Button(
+                    onClick = {
                         if (password == confirmPassword) {
-                            SignUp(email, password)
+                            signUp(email, password)
                         } else {
                             message = "Passwords do not match"
                         }
-                    }, modifier = Modifier.fillMaxWidth()
+                    },
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(text = "Sign Up")
                 }
@@ -171,14 +174,13 @@ fun SignUpScreen(onNavigateToLogin: ()->Unit, loginManager: LogInManager) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(text = message, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 24.sp)
-
             }
         }
     }
 }
 
-//@Preview
-//@Composable
-//fun PreviewSignUpScreen() {
-//    SignUpScreen({  })
-//}
+// @Preview
+// @Composable
+// fun PreviewSignUpScreen() {
+//     SignUpScreen({  })
+// }

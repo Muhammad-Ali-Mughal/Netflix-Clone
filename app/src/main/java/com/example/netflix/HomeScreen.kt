@@ -37,7 +37,7 @@ fun HomeScreen(onNavigateToHome: () -> Unit, onNavigateToMovieDetails: () -> Uni
             TopBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(4.dp)
                     .constrainAs(topbar) {
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
@@ -58,6 +58,7 @@ fun HomeScreen(onNavigateToHome: () -> Unit, onNavigateToMovieDetails: () -> Uni
                     painter = painterResource(id = R.drawable.hdkung),
                     contentDescription = "",
                     modifier = Modifier
+                        .clickable { onNavigateToMovieDetails() }
                         .align(Alignment.Center)
                         .size(500.dp)
                         .padding(16.dp)
@@ -80,7 +81,7 @@ fun HomeScreen(onNavigateToHome: () -> Unit, onNavigateToMovieDetails: () -> Uni
                 onNavigateToMovieDetails
             )
             Headings(
-                text = "Netflix Exculsive",
+                text = "Netflix Exclusive",
                 modifier = Modifier.constrainAs(heading) {
                     top.linkTo(moviesrow1.bottom)
                     start.linkTo(parent.start)
@@ -135,16 +136,11 @@ fun HomeScreen(onNavigateToHome: () -> Unit, onNavigateToMovieDetails: () -> Uni
 fun TopBar(modifier: Modifier) {
     Box(modifier = modifier) {
         Image(
-            painter = painterResource(id = R.drawable.netflix),
+            painter = painterResource(id = R.drawable.icons8_netflix),
             contentDescription = null,
             modifier = Modifier
-                .align(Alignment.CenterStart)
-                .size(48.dp)
-        )
-        Image(
-            painter = painterResource(id = R.drawable.group_8),
-            contentDescription = null,
-            modifier = Modifier.align(Alignment.CenterEnd)
+                .align(Alignment.Center)
+                .size(70.dp)
         )
     }
 }
@@ -196,7 +192,6 @@ fun ThumbnailRow(modifier: Modifier, onClick: () -> Unit) {
             .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.Start
     ) {
-
         ThumbnailCard(image = R.drawable.damsel, onClick)
         ThumbnailCard(image = R.drawable.witcher, onClick)
         ThumbnailCard(image = R.drawable.lucifer, onClick)
@@ -210,7 +205,7 @@ fun ThumbnailRow(modifier: Modifier, onClick: () -> Unit) {
 fun ThumbnailCard(image: Int, onClick: () -> Unit) {
     Column(
         modifier = Modifier
-            .width(150.dp)
+            .width(170.dp)
             .padding(start = 8.dp)
     ) {
         Image(
@@ -218,8 +213,8 @@ fun ThumbnailCard(image: Int, onClick: () -> Unit) {
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
-                .clickable { onClick }
+                .height(350.dp)
+                .clickable { onClick() }
         )
     }
 }
@@ -237,7 +232,7 @@ fun MovieCard(title: String, image: Int, onClick: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(200.dp)
-                .clickable { onClick }
+                .clickable { onClick() }
         )
         Text(
             text = title,
@@ -247,8 +242,8 @@ fun MovieCard(title: String, image: Int, onClick: () -> Unit) {
     }
 }
 
-//@Preview
-//@Composable
-//fun PreviewHomeScreen() {
-//    HomeScreen({})
-//}
+// @Preview
+// @Composable
+// fun PreviewHomeScreen() {
+//     HomeScreen({}, {})
+// }
